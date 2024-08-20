@@ -2,13 +2,11 @@ import './styles.css'
 
 import { useState } from 'react'
 import {
-  useReactModelRoot,
   useChangeSession,
   useCroquetSession,
-  useConnectedViews,
+  usePublish,
+  useModelRoot,
 } from '@croquet/react' //prettier-ignore
-
-import { BsPeopleFill } from 'react-icons/bs'
 
 import RootModel from './models/root'
 
@@ -16,6 +14,7 @@ import Dropdown from './components/Dropdown'
 import CroquetQRCode from './components/CroquetQRCode'
 import Colors from './components/Colors'
 import Painting from './components/Painting'
+import ViewCount from './components/ViewCount'
 
 import { sessions } from './data/sessions'
 import { colors } from './data/paintingCells'
@@ -26,24 +25,21 @@ type MondrianProps = {
   showSessionDropdown: boolean
 }
 export default function Mondrian({ showQR = true, showUserCount = true, showSessionDropdown = true }: MondrianProps) {
-  const model = useReactModelRoot<RootModel>()
-
-  const paintingCells = model.painting.cells
-  const { viewCount: nUsers } = useConnectedViews()
+  const model = useModelRoot<RootModel>()
 
   const [selectedColor, set_selectedColor] = useState(colors[0])
+  const publishReset = usePublish((data) => [model.painting.id, 'reset', data])
+  const publishPaint = usePublish((data) => [model.painting.id, 'paint', data])
 
-  const changeSession = useChangeSession()
-  const { name: sessionName } = useCroquetSession()
-
-  const resetPainting = model.painting.reset
-
-  const paintCell = (cellId) => {
+  const resetPainting = () => publishReset()
+  const paintCell = (cellId: number) => {
     if (selectedColor === null) return
     const payload = { cellId, newColor: selectedColor }
-    model.painting.paint(payload)
+    publishPaint(payload)
   }
 
+  const { name: sessionName } = useCroquetSession()
+  const changeSession = useChangeSession()
   const dropdownOptions = sessions.map((s) => ({ value: s, label: s.name }))
   const selectedOption = sessions.findIndex((s) => s.name === sessionName)
   const handleDropdownChange = (selectedIdx) => {
@@ -68,15 +64,10 @@ export default function Mondrian({ showQR = true, showUserCount = true, showSess
         />
       )}
 
-      {showUserCount && (
-        <div className='user-count'>
-          <BsPeopleFill />
-          <span>{nUsers}</span>
-        </div>
-      )}
+      {showUserCount && <ViewCount />}
 
       <Colors {...{ selectedColor, set_selectedColor, resetPainting }} />
-      <Painting {...{ paintingCells, onClick: paintCell }} />
+      <Painting {...{ onClick: paintCell }} />
       {showQR && (
         <div className='qr-container'>
           <CroquetQRCode />
