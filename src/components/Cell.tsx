@@ -7,7 +7,7 @@ type CellProps = {
   onClick: (id: number) => void
 }
 export default function Cell({ grow = 1, id, onClick }: CellProps) {
-  const color = useModelSelector<RootModel, string>((model) => model.painting.cells[id].color)
+  const color = useModelSelector((model: RootModel) => model.painting.cells[id].color)
 
   return (
     <div
@@ -21,7 +21,7 @@ export default function Cell({ grow = 1, id, onClick }: CellProps) {
         },
       }}
     >
-      {id}
+      {/* {id} */}
     </div>
   )
 }
