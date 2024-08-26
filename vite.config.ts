@@ -7,4 +7,7 @@ export default defineConfig({
   build: {
     minify: false,
   },
+  optimizeDeps: {
+    exclude: ['@croquet/react'],
+  },
 })
