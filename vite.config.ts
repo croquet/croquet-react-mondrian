@@ -7,7 +7,9 @@ export default defineConfig({
   build: {
     minify: false,
   },
-  optimizeDeps: {
-    exclude: ['@croquet/react'],
-  },
+  // // Uncomment these lines when 'hacking' on @croquet/react
+  // optimizeDeps: {
+  //   exclude: ['@croquet/react'],
+  //   include: ['@croquet/react > @croquet/croquet', '@croquet/react > object-hash'],
+  // },
 })
