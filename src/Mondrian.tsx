@@ -1,12 +1,7 @@
 import './styles.css'
 
 import { useState } from 'react'
-import {
-  useChangeSession,
-  useCroquetSession,
-  usePublish,
-  useModelRoot,
-} from '@croquet/react' //prettier-ignore
+import { useIsConnected, usePublish, useModelRoot } from '@croquet/react'
 
 import RootModel from './models/root'
 
@@ -15,8 +10,6 @@ import CroquetQRCode from './components/CroquetQRCode'
 import Colors from './components/Colors'
 import Painting from './components/Painting'
 import ViewCount from './components/ViewCount'
-
-import { sessions } from './data/sessions'
 import { colors } from './data/paintingCells'
 
 type MondrianProps = {
@@ -38,40 +31,25 @@ export default function Mondrian({ showQR = true, showUserCount = true, showSess
     publishPaint(payload)
   }
 
-  const { name: sessionName } = useCroquetSession()
-  const changeSession = useChangeSession()
-  const dropdownOptions = sessions.map((s) => ({ value: s, label: s.name }))
-  const selectedOption = sessions.findIndex((s) => s.name === sessionName)
-  const handleDropdownChange = (selectedIdx) => {
-    const s = sessions[selectedIdx]
-    changeSession({ name: s.name, password: s.password })
-
-    // Update URL session
-    const searchParams = new URLSearchParams(window.location.search)
-    searchParams.set('session', s.name)
-    window.history.replaceState(null, '', `${window.location.pathname}?${searchParams.toString()}`)
-  }
+  const isConnected = useIsConnected()
 
   return (
     <div className='App'>
-      {showSessionDropdown && (
-        <Dropdown
-          {...{
-            selected: selectedOption,
-            options: dropdownOptions,
-            onChange: handleDropdownChange,
-          }}
-        />
-      )}
-
+      {showSessionDropdown && <Dropdown />}
       {showUserCount && <ViewCount />}
 
-      <Colors {...{ selectedColor, set_selectedColor, resetPainting }} />
-      <Painting {...{ onClick: paintCell }} />
-      {showQR && (
-        <div className='qr-container'>
-          <CroquetQRCode />
-        </div>
+      {isConnected ? (
+        <>
+          <Colors {...{ selectedColor, set_selectedColor, resetPainting }} />
+          <Painting {...{ onClick: paintCell }} />
+          {showQR && (
+            <div className='qr-container'>
+              <CroquetQRCode />
+            </div>
+          )}
+        </>
+      ) : (
+        <p>Disconnected. Please choose a session to connect to</p>
       )}
     </div>
   )

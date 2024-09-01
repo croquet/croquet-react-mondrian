@@ -8,13 +8,13 @@ import RootModel from './models/root'
 import Mondrian from './Mondrian'
 
 type ParamConfig = {
-  sessionName: string | undefined
-  showQR: boolean
-  showUserCount: boolean
-  showSessionDropdown: boolean
+  sessionName?: string
+  showQR?: boolean
+  showUserCount?: boolean
+  showSessionDropdown?: boolean
 }
 function parseParams() {
-  let config = {} as ParamConfig
+  let config: ParamConfig = {}
   const params = new URLSearchParams(document.location.search)
 
   const tutorial = params.get('tutorial')
@@ -41,7 +41,7 @@ export default function App() {
   const { sessionName, showQR, showUserCount, showSessionDropdown } = parseParams()
 
   // Get default session from URL params, or default to first session
-  const defaultSession = sessions.find((s) => s.name === sessionName) || sessions[0]
+  const defaultSession = sessions.find((s) => s.name === sessionName) || ({} as { name?: string; password?: string })
   const { name, password } = defaultSession
 
   return (
